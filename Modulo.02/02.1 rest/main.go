@@ -19,7 +19,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// User is a concha de sumadre
+// User is a object
 type User struct {
 	Name     string
 	LastName string
