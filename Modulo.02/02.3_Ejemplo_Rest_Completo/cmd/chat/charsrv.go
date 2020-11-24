@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"os"
 
@@ -8,7 +9,11 @@ import (
 )
 
 func main() {
-	cfg, err := config.LoadConfig("config.yaml")
+
+	configFile := flag.String("config", "./config.yaml", "this is the service config")
+	flag.Parse()
+
+	cfg, err := config.LoadConfig(*configFile)
 	if err != nil {
 		fmt.Println(err.Error())
 		os.Exit(1)
