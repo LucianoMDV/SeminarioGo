@@ -34,9 +34,30 @@ func makeEndpoints(s Service) []*endpoint {
 		method:   "GET",
 		path:     "/messages",
 		function: getAll(s),
+	}, &endpoint{
+		method:   "POST",
+		path:     "/messages",
+		function: addMessage(s),
 	})
 
 	return list
+}
+
+func addMessage(s Service) gin.HandlerFunc {
+	var m Message
+	return func(c *gin.Context) {
+		c.BindJSON(&m)
+		result, err := s.AddMessage(m)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"message": err,
+			})
+		} else {
+			c.JSON(http.StatusOK, gin.H{
+				"message": result,
+			})
+		}
+	}
 }
 
 func getAll(s Service) gin.HandlerFunc {
