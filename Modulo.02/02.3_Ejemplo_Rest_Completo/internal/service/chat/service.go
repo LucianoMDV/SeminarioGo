@@ -11,8 +11,8 @@ type Message struct {
 	Text string
 }
 
-//ChatService is a interface...
-type ChatService interface {
+//Service is a interface...
+type Service interface {
 	AddMessage(Message) error
 	FindByID(int) *Message
 	FindAll() []*Message
@@ -24,7 +24,7 @@ type service struct {
 }
 
 // New is a...
-func New(db *sqlx.DB, c *config.Config) (ChatService, error) {
+func New(db *sqlx.DB, c *config.Config) (Service, error) {
 	return service{db, c}, nil
 }
 

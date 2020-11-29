@@ -1,6 +1,7 @@
 // Seminario GoLang - 02.3 Ejemplo Rest Completo (parte 1)
 // Seminario GoLang - 02.4 Ejemplo Rest Completo (parte 2)
 // Seminario GoLang - 02.5 Ejemplo Rest Completo (parte 3)
+// Seminario GoLang - 02.6 Ejemplo Rest Completo (parte 4)
 package main
 
 import (
@@ -12,6 +13,7 @@ import (
 	"github.com/LucianoMDV/SeminarioGo/Modulo.02/02.3_Ejemplo_Rest_Completo/internal/config"
 	"github.com/LucianoMDV/SeminarioGo/Modulo.02/02.3_Ejemplo_Rest_Completo/internal/database"
 	"github.com/LucianoMDV/SeminarioGo/Modulo.02/02.3_Ejemplo_Rest_Completo/internal/service/chat"
+	"github.com/gin-gonic/gin"
 	"github.com/jmoiron/sqlx"
 )
 
@@ -23,6 +25,7 @@ func main() {
 	// fmt.Println(cfg.Version)
 
 	db, err := database.NewDatabase(cfg)
+	defer db.Close()
 	if err != nil {
 		fmt.Println(err.Error())
 		os.Exit(1)
@@ -32,16 +35,21 @@ func main() {
 	* linea de comando "rm test/data.db" si hay problemas eliminar data.db
 	* y con esta funcion se genera de nuevo la BD
 	**/
-	if err := createSchema(db); err != nil {
-		fmt.Println(err.Error())
-		os.Exit(1)
-	}
+	// if err := createSchema(db); err != nil {
+	// 	fmt.Println(err.Error())
+	// 	os.Exit(1)
+	// }
 
 	service, _ := chat.New(db, cfg)
+	httpService := chat.NewHTTPTransport(service)
 
-	for _, m := range service.FindAll() {
-		fmt.Println(m)
-	}
+	r := gin.Default()
+	httpService.Register(r)
+	r.Run()
+
+	// for _, m := range service.FindAll() {
+	// 	fmt.Println(m)
+	// }
 }
 
 func readConfig() *config.Config {
