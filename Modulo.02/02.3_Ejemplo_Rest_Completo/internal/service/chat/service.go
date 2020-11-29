@@ -1,6 +1,9 @@
 package chat
 
-import "github.com/LucianoMDV/SeminarioGo/Modulo.02/02.3_Ejemplo_Rest_Completo/internal/config"
+import (
+	"github.com/LucianoMDV/SeminarioGo/Modulo.02/02.3_Ejemplo_Rest_Completo/internal/config"
+	"github.com/jmoiron/sqlx"
+)
 
 //Message is a object...
 type Message struct {
@@ -16,12 +19,13 @@ type ChatService interface {
 }
 
 type service struct {
+	db   *sqlx.DB
 	conf *config.Config
 }
 
 // New is a...
-func New(c *config.Config) (ChatService, error) {
-	return service{c}, nil
+func New(db *sqlx.DB, c *config.Config) (ChatService, error) {
+	return service{db, c}, nil
 }
 
 func (s service) AddMessage(m Message) error {
@@ -32,6 +36,9 @@ func (s service) FindByID(int) *Message {
 }
 func (s service) FindAll() []*Message {
 	var list []*Message
-	list = append(list, &Message{0, "Hello word"})
+	// list = append(list, &Message{0, "Hello word"})
+	if err := s.db.Select(&list, "SELECT * FROM messages"); err != nil {
+		panic(err)
+	}
 	return list
 }
