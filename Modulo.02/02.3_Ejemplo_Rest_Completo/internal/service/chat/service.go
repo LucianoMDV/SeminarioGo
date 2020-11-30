@@ -16,8 +16,10 @@ type Message struct {
 //Service is a interface...
 type Service interface {
 	AddMessage(Message) (Message, error)
-	FindByID(int) *Message
+	FindByID(int) (*Message, error)
 	FindAll() []*Message
+	RemoveByID(int) (bool, error)
+	UpdateMensaje(Message) (bool, error)
 }
 
 type service struct {
@@ -44,9 +46,16 @@ func (s service) AddMessage(m Message) (Message, error) {
 	return m, err
 }
 
-func (s service) FindByID(int) *Message {
-	return nil
+func (s service) FindByID(ID int) (*Message, error) {
+	var m Message
+	sqlStatement := "SELECT * FROM messages WHERE ID=?"
+	if err := s.db.Get(&m, sqlStatement, ID); err != nil {
+		return nil, err
+	}
+
+	return &m, nil
 }
+
 func (s service) FindAll() []*Message {
 	var list []*Message
 	// list = append(list, &Message{0, "Hello word"})
@@ -54,4 +63,27 @@ func (s service) FindAll() []*Message {
 		panic(err)
 	}
 	return list
+}
+
+func (s service) UpdateMensaje(m Message) (bool, error) {
+
+	sqlStatement := "UPDATE messages SET Text = ? WHERE ID = ?"
+
+	_, err := s.db.Exec(sqlStatement, m.Text, m.ID)
+	if err != nil {
+		return false, err
+	}
+
+	return true, nil
+}
+
+func (s service) RemoveByID(ID int) (bool, error) {
+	sqlStatement := "DELETE FROM messages WHERE ID = ?"
+	_, err := s.db.Exec(sqlStatement, ID)
+	if err != nil {
+		return false, err
+	}
+
+	return true, nil
+
 }

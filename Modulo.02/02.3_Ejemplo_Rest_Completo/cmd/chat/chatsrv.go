@@ -8,7 +8,6 @@ import (
 	"flag"
 	"fmt"
 	"os"
-	"time"
 
 	"github.com/LucianoMDV/SeminarioGo/Modulo.02/02.3_Ejemplo_Rest_Completo/internal/config"
 	"github.com/LucianoMDV/SeminarioGo/Modulo.02/02.3_Ejemplo_Rest_Completo/internal/database"
@@ -21,8 +20,7 @@ func main() {
 
 	cfg := readConfig()
 	// go run cmd/chat/chatsrv.go -config ./config/config.yaml
-	// fmt.Println(cfg.DB.Driver)
-	// fmt.Println(cfg.Version)
+	// go run cmd/chat/chatsrv.go
 
 	db, err := database.NewDatabase(cfg)
 	defer db.Close()
@@ -35,10 +33,10 @@ func main() {
 	* linea de comando "rm test/data.db" si hay problemas eliminar data.db
 	* y con esta funcion se genera de nuevo la BD
 	**/
-	// if err := createSchema(db); err != nil {
-	// 	fmt.Println(err.Error())
-	// 	os.Exit(1)
-	// }
+	if err := createSchema(db); err != nil {
+		fmt.Println(err.Error())
+		os.Exit(1)
+	}
 
 	service, _ := chat.New(db, cfg)
 	httpService := chat.NewHTTPTransport(service)
@@ -53,7 +51,7 @@ func main() {
 }
 
 func readConfig() *config.Config {
-	configFile := flag.String("config", "./config.yaml", "this is the service config")
+	configFile := flag.String("config", "./config/config.yaml", "this is the service config")
 	flag.Parse()
 
 	cfg, err := config.LoadConfig(*configFile)
@@ -77,8 +75,8 @@ func createSchema(db *sqlx.DB) error {
 	}
 
 	//or, you can use MustExec, which panics on error
-	insertMessage := `INSERT INTO messages (text) VALUES (?)`
-	s := fmt.Sprintf("Message number %v", time.Now().Nanosecond())
-	db.MustExec(insertMessage, s)
+	// insertMessage := `INSERT INTO messages (text) VALUES (?)`
+	// s := fmt.Sprintf("Message number %v", time.Now().Nanosecond())
+	// db.MustExec(insertMessage, s)
 	return nil
 }
